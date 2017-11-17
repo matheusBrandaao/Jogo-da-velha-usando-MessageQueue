@@ -12,17 +12,19 @@ int coluna = 0;
 const char *NOME_FILA = "/jogada2";
 
 //ESTRUTURA DA MSG
-typedef struct Mensagem {
-	int id;
+typedef struct Mensagem1 {
 	char jogadaLinha[10];
-	char jogadaColuna[10];
 } TMensagem;
 
+typedef struct Mensagem2 {
+	char jogadaColuna[10];
+} TMensagem2;
 
 int main(int argc, char *argv[])
 {
-	mqd_t queue; //ID queue
+	mqd_t queue; 
 	TMensagem jog; 
+	TMensagem2 jog2;
 	char* primeiraLinha = argv[1]; 
 	char* segundaColuna = argv[2];
 
@@ -40,25 +42,24 @@ int main(int argc, char *argv[])
 
 
 //MONTANDO A MSG 
-jog.id = 1;
-strncpy(jog.jogadaLinha, primeiraJogada, 10);
-strcpy(jog.jogadaColuna, segundaJogada, 10);
+strcpy(jog.jogadaLinha, primeiraLinha);
+strcpy(jog2.jogadaColuna, segundaColuna);
 
-linha = atoi(jogadaLinha);
-coluna = atoi(jogadaColuna);
+linha = atoi(jog.jogadaLinha);
+coluna = atoi(jog2.jogadaColuna);
 
 
 
 //ENVIAR MSG
-if(mq_send(queue, &linha, sizeof(TMensagem), 10) != 0){
+if(mq_send(queue, (const char*)&linha, sizeof(TMensagem), 10) != 0){
 	perror("Linha");
 }
-if(mq_send(queue, &coluna, sizeof(TMensagem), 11) != 0){
+if(mq_send(queue, (const char*)&coluna, sizeof(TMensagem2), 11) != 0){
 	perror("Coluna");
 }
 
 mq_close(queue);
-printf("Jogada Enviada\n");
+printf("Jogada do segundo jogador enviada\n");
 exit(EXIT_SUCCESS);
 }
 
