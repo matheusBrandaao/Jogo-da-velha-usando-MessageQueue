@@ -5,9 +5,18 @@
 #include <sys/stat.h>
 #include <mqueue.h>
 
+int partida = 0;
 char mapa[2][2];
-int *linha;
-int *coluna;
+
+//VALORES PARA X 
+int linha; 
+int coluna;
+
+//VALORES PARA O
+int linha2;
+int coluna2;
+
+
 //NOME DA FILA
 const char* NOME_FILA = "/jogada1";
 const char* NOME_FILA2 = "/jogada2";
@@ -21,14 +30,17 @@ typedef struct Mensagem2 {
 	char jogadaColuna[10];
 }TMensagem2;
 
-
-void captura_msgLinha(TMensagem* msg) {
-	linha->msg->jogadaLinha;
+/*
+int* captura_msgLinha(TMensagem* msg, int *valor) {
+	valor->msg->jogadaLinha;
+	return valor;
 }
 
-void captura_msgColuna(TMensagem2* msg) {
-	coluna->msg->jogadaColuna;
+int* captura_msgColuna(TMensagem2* msg, int *valor) {
+	valor->msg->jogadaColuna;
+	return valor;
 }
+*/
 
 ssize_t get_msg_buffer_size(mqd_t queue) {
 	struct mq_attr attr;
@@ -43,20 +55,38 @@ ssize_t get_msg_buffer_size(mqd_t queue) {
 }
 
 
-void jogadaInvalida(int *linha, int *coluna)
+int jogadaInvalida(int linha, int coluna)
 {
-while(linha < 0 || coluna < 0 || linha > 2 || coluna > 2){
-	printf("Jogada Invalida...Tente novamente\n");
+if(linha < 0 || coluna < 0 || linha > 2 || coluna > 2){
+	return 0;
 }
+return 1;
 }
 
 void mapaJogo()
 {
+
+for(int i=0; i<2; i++){
+	for(int j=0; j<2; j++)
+		mapa[i][j] = ' '; 
+}
+
 printf("\t %c | %c | %c\n", mapa[0][0], mapa[0][1], mapa[0][2]);
 printf("\t-------------\n");
-printf("\t %c | %c | %c\n", mapa[1]0], mapa[1][1], mapa[1][2]);
+printf("\t %c | %c | %c\n", mapa[1][0], mapa[1][1], mapa[1][2]);
 printf("\t-------------\n");
 printf("\t %c | %c | %c\n", mapa[2][0], mapa[2][1], mapa[2][2]);
+}
+
+void insereJogada(int linha, int coluna)
+{
+	int aux;
+	aux = jogadaInvalida(linha, coluna);
+	if(aux == 0)
+		printf("Jogada Invalida...Tente novamente\n");
+	else
+	mapa[linha][coluna] = 'X';
+	mapa[linha][coluna] = 'O';
 }
 
 
@@ -80,6 +110,7 @@ ssize_t nbytesColuna2;
 	if (queue == (mqd_t) -1) {
 		perror("mq_open");
 		exit(2);
+	}
 
 	/*ABERTURA FILA PARA JOGADOR 2*/
 	queue2 = mq_open(NOME_FILA2, O_RDONLY);
@@ -107,27 +138,37 @@ ssize_t nbytesColuna2;
 	if (nbytesLinha == -1) {
 		perror("receive");
 		exit(4);
+	}
 
 	nbytesColuna = mq_receive(queue, jogadaColuna, tam_buffer, NULL);
 	if (nbytesColuna == -1) {
 		perror("receive");
 		exit(4);
+	}
 
 	nbytesLinha2 = mq_receive(queue2, jogadaLinha2, tam_buffer2, NULL);
 	if (nbytesLinha2 == -1) {
 		perror("receive");
 		exit(4);
+	}
 
 	nbytesColuna2 = mq_receive(queue2, jogadaColuna2, tam_buffer2, NULL);
 	if (nbytesColuna2 == -1) {
 		perror("receive");
 		exit(4);
+	}
 
+	
+	linha = *jogadaLinha;
+	coluna = *jogadaColuna;
 
-	captura_msgColuna((TMensagem*) jogadaLinha);
-	captura_msgLinha((TMensagem2*) jogadaLinha2);
-	captura_msgColuna((TMensagem*) jogadaColuna);
-	captura_msgLinha((TMensagem2*) jogadaColuna2);
+	linha2 = *jogadaLinha2;
+	coluna2 = *jogadaColuna2;
+
+	mapaJogo();
+	insereJogada(linha, coluna);
+	insereJogada(linha2, coluna2);
+
 
 
 
@@ -143,3 +184,4 @@ ssize_t nbytesColuna2;
 	exit(EXIT_SUCCESS);
 	}
 }
+
