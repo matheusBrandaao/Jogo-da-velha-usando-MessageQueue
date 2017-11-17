@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <mqueue.h>
 
+char mapa[2][2];
 int *linha;
 int *coluna;
 //NOME DA FILA
@@ -19,7 +24,6 @@ typedef struct Mensagem2 {
 
 void captura_msgLinha(TMensagem* msg) {
 	linha->msg->jogadaLinha;
-	coluna->msg->jogadaColuna;
 }
 
 void captura_msgColuna(TMensagem2* msg) {
@@ -46,7 +50,7 @@ while(linha < 0 || coluna < 0 || linha > 2 || coluna > 2){
 }
 }
 
-void mapaJogo(char mapa[2][2])
+void mapaJogo()
 {
 printf("\t %c | %c | %c\n", mapa[0][0], mapa[0][1], mapa[0][2]);
 printf("\t-------------\n");
@@ -54,7 +58,6 @@ printf("\t %c | %c | %c\n", mapa[1]0], mapa[1][1], mapa[1][2]);
 printf("\t-------------\n");
 printf("\t %c | %c | %c\n", mapa[2][0], mapa[2][1], mapa[2][2]);
 }
-
 
 
 
@@ -67,10 +70,11 @@ char *jogadaColuna = NULL;
 char *jogadaLinha2 = NULL;
 char *jogadaColuna2 = NULL;
 ssize_t tam_buffer;
-ssize_t nbytes;
+ssize_t nbytesLinha;
+ssize_t nbytesColuna;
 ssize_t tam_buffer2;
-ssize_t nbytes2;
-
+ssize_t nbytesLinha2;
+ssize_t nbytesColuna2;
 	/*ABERTURA FILA PARA JOGADOR 1*/
 	queue = mq_open(NOME_FILA, O_RDONLY);
 	if (queue == (mqd_t) -1) {
@@ -99,5 +103,43 @@ ssize_t nbytes2;
 	tam_buffer2 = get_msg_buffer_size(queue2);
 	jogadaColuna2 = calloc(tam_buffer2, 1);
 
-	
+	nbytesLinha = mq_receive(queue, jogadaLinha, tam_buffer, NULL);
+	if (nbytesLinha == -1) {
+		perror("receive");
+		exit(4);
+
+	nbytesColuna = mq_receive(queue, jogadaColuna, tam_buffer, NULL);
+	if (nbytesColuna == -1) {
+		perror("receive");
+		exit(4);
+
+	nbytesLinha2 = mq_receive(queue2, jogadaLinha2, tam_buffer2, NULL);
+	if (nbytesLinha2 == -1) {
+		perror("receive");
+		exit(4);
+
+	nbytesColuna2 = mq_receive(queue2, jogadaColuna2, tam_buffer2, NULL);
+	if (nbytesColuna2 == -1) {
+		perror("receive");
+		exit(4);
+
+
+	captura_msgColuna((TMensagem*) jogadaLinha);
+	captura_msgLinha((TMensagem2*) jogadaLinha2);
+	captura_msgColuna((TMensagem*) jogadaColuna);
+	captura_msgLinha((TMensagem2*) jogadaColuna2);
+
+
+
+
+
+
+
+	// liberar descritor (mq_close)
+	if(partida == 11)
+	{
+	mq_close(queue);
+	printf("Fim!\n");
+	exit(EXIT_SUCCESS);
+	}
 }
