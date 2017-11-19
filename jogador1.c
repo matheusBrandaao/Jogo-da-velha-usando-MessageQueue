@@ -22,6 +22,14 @@ typedef struct Mensagem2 {
 
 int main(int argc, char *argv[])
 {
+	//PROGRAMA SEM ARGUMENTOS
+	if(argc == 1)
+	{
+		printf("Jogada sem coordenadas, tente novamente\n");
+		exit(EXIT_FAILURE);
+	}
+
+	//VARIAVEIS PARA ENVIO DA MSG
 	mqd_t queue; 
 	TMensagem jog;
 	TMensagem2 jog2;
@@ -29,26 +37,28 @@ int main(int argc, char *argv[])
 	char* segundaColuna = argv[2];
 
 
-	//Obtendo descritor 
+	//MONTANDO A MSG
+	strcpy(jog.jogadaLinha, primeiraLinha);
+	strcpy(jog2.jogadaColuna, segundaColuna);
+
+	linha = atoi(jog.jogadaLinha);
+	coluna = atoi(jog2.jogadaColuna);
+	
+	if(linha < 0 || coluna > 2 )
+	{
+		printf("Jogada Invalida, tente novamente\n", );
+		exit(EXIT_FAILURE);
+	}
+
+	//OBTENDO DESCRITOR 
 	queue = mq_open(NOME_FILA, O_WRONLY | O_CREAT, 0666, NULL); 
 	
-
-	//Verificando erro
+	//VERIFICANDO ERRO
 	if(queue == (mqd_t) -1)
 	{
 	perror("mq_open");
 	exit(2);
 	}
-
-
-//MONTANDO A MSG
-strcpy(jog.jogadaLinha, primeiraLinha);
-strcpy(jog2.jogadaColuna, segundaColuna);
-
-linha = atoi(jog.jogadaLinha);
-coluna = atoi(jog2.jogadaColuna);
-
-
 
 //ENVIAR MSG
 if(mq_send(queue, (const char*)&linha, sizeof(TMensagem), 10) != 0){
