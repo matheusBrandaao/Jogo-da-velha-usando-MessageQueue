@@ -51,13 +51,8 @@ ssize_t get_msg_buffer_size(mqd_t queue) {
 
 int jogadaInvalida(int linha, int coluna)
 {
-if(linha < 0 || coluna < 0 || linha > 2 || coluna > 2){
-	return 0;
-}
-if(linha == ' ' || coluna == ' '){
-	return 0;
-}
-if(mapa[linha][coluna] != ' '){
+if(mapa[linha][coluna] != ' ')
+{
 	return 0;
 }
 return 1;
@@ -83,6 +78,7 @@ printf("\t-------------\n");
 printf("\t%c | %c | %c\n", mapa[2][0], mapa[2][1], mapa[2][2]);
 }
 
+//VERIFICAR COMO INTERROMPER E PEDIR JOGADA DE NOVO
 void insereJogadaX(int linha, int coluna)
 {
 	int aux;
